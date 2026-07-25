@@ -16,14 +16,54 @@ src/
 
 ## پیش‌نیازها
 
-- .NET 8 SDK
-- Docker (برای اجرای PostgreSQL) یا یک نمونه PostgreSQL در دسترس
+- Docker و Docker Compose (ساده‌ترین راه اجرا)
+- یا به‌صورت جایگزین: .NET 8 SDK + یک نمونه PostgreSQL برای اجرای محلی بدون Docker
 
-## راه‌اندازی
+## راه‌اندازی با Docker (پیشنهادی)
+
+با یک دستور، هم دیتابیس Postgres و هم سرویس Api بالا می‌آید. Migrationها هم به‌صورت خودکار هنگام start شدن Api روی دیتابیس اعمال می‌شوند (نیازی به اجرای دستی `dotnet ef` نیست):
 
 ```bash
-# ۱. بالا آوردن دیتابیس
-docker compose up -d
+docker compose up -d --build
+```
+
+بعد از چند ثانیه:
+
+- Swagger: http://localhost:8080/swagger
+- Postgres روی پورت `5432` هاست در دسترس است (برای اتصال با ابزارهایی مثل DBeaver/pgAdmin)
+
+برای دیدن لاگ‌ها:
+
+```bash
+docker compose logs -f api
+```
+
+برای متوقف کردن:
+
+```bash
+docker compose down          # کانتینرها متوقف می‌شوند، دیتای دیتابیس می‌ماند
+docker compose down -v       # به‌همراه پاک کردن Volume دیتابیس (ریست کامل)
+```
+
+> **نکته امنیتی:** مقادیر `Jwt__SecretKey` و پسورد Postgres داخل `docker-compose.yml` فقط برای توسعه هستند. پیش از انتشار (Production) حتماً آن‌ها را با مقادیر واقعی از طریق فایل `.env` (که در گیت commit نمی‌شود) یا یک secret manager جایگزین کنید.
+
+### ساخت و اجرای مستقل ایمیج Api (بدون Compose)
+
+اگر فقط می‌خواهید ایمیج سرویس Api را جدا بسازید (مثلاً برای push به یک Registry):
+
+```bash
+docker build -t musicmentor-api:latest .
+docker run -p 8080:8080 \
+  -e ConnectionStrings__DefaultConnection="Host=<postgres-host>;Port=5432;Database=musicmentor;Username=postgres;Password=postgres" \
+  -e Jwt__SecretKey="یک-secret-طولانی-و-تصادفی" \
+  musicmentor-api:latest
+```
+
+## راه‌اندازی محلی بدون Docker (اختیاری)
+
+```bash
+# ۱. بالا آوردن فقط دیتابیس با Docker
+docker compose up -d postgres
 
 # ۲. نصب ابزار EF Core (یک‌بار در سیستم)
 dotnet tool install --global dotnet-ef

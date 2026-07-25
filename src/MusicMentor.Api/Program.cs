@@ -1,5 +1,7 @@
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MusicMentor.Infrastructure;
+using MusicMentor.Infrastructure.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +43,14 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
+// اعمال خودکار Migrationهای در انتظار روی دیتابیس هنگام بالا آمدن (مناسب برای اجرای داخل Docker/Compose).
+// در محیط تولید با ترافیک بالا، بهتر است این کار به یک مرحله جداگانه CI/CD منتقل شود.
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await db.Database.MigrateAsync();
+}
+
 // --- Middleware pipeline ---
 if (app.Environment.IsDevelopment())
 {
@@ -48,7 +58,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
 app.UseCors("Default");
 
 app.UseAuthentication();
