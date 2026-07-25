@@ -41,7 +41,7 @@ services:
       Jwt__AccessTokenMinutes: 60
 
     ports:
-      - "8082:8080"
+      - "8080:8080"
 
 volumes:
   musicmentor_pgdata:
