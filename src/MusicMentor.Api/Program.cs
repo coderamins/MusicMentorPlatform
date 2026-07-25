@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using MusicMentor.Infrastructure;
 using MusicMentor.Infrastructure.Data;
+using MusicMentor.Infrastructure.Seed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +50,9 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     await db.Database.MigrateAsync();
+
+    if (app.Environment.IsDevelopment())
+        await ApplicationUserSeed.SeedAsync(scope.ServiceProvider);
 }
 
 // --- Middleware pipeline ---
