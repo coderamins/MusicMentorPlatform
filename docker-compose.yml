@@ -44,8 +44,6 @@ services:
 
     ports:
       - "8082:8080"
-    # expose:
-    #   - "8080"
 
     networks:
       - internal
@@ -62,8 +60,6 @@ services:
 
     ports:
       - "3000:3000"
-    # expose:
-    #   - "3000"
 
     networks:
       - proxy
