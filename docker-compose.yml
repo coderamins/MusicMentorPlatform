@@ -35,6 +35,9 @@ services:
       Jwt__AccessTokenMinutes: 60
     ports:
       - "8080:8080"
+    networks:
+      - default
+      - proxy
 
   frontend:
     build:
@@ -44,6 +47,9 @@ services:
       - api
     ports:
       - "3000:3000"
+    networks:
+      - default
+      - proxy
 
 networks:
   proxy:
