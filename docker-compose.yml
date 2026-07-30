@@ -8,8 +8,6 @@ services:
       POSTGRES_DB: musicmentor
       POSTGRES_USER: musmentor
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports: 
-      - "5434:5432"
     volumes:
       - musicmentor_pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -22,16 +20,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-
     restart: unless-stopped
-
     depends_on:
       postgres:
         condition: service_healthy
-
     env_file:
       - .env
-
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=musicmentor;Username=musmentor;Password=${POSTGRES_PASSWORD}
@@ -39,9 +33,17 @@ services:
       Jwt__Audience: MusicMentor.Client
       Jwt__SecretKey: ${JWT_KEY}
       Jwt__AccessTokenMinutes: 60
-
     ports:
       - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
 
 volumes:
   musicmentor_pgdata:
