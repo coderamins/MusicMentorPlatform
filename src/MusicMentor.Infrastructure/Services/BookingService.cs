@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using MusicMentor.Application.DTOs.Auth;
 using MusicMentor.Application.DTOs.Bookings;
@@ -166,7 +167,7 @@ public class BookingService : IBookingService
             .AsNoTracking()
             .Where(b => b.StudentProfileId == studentProfileId || b.TeacherProfileId == teacherProfileId)
             .OrderByDescending(b => b.CreatedAtUtc)
-            .Select(b => ProjectToDto(b))
+            .Select(ToDto)
             .ToListAsync();
     }
 
@@ -175,13 +176,21 @@ public class BookingService : IBookingService
         var dto = await _db.Bookings
             .AsNoTracking()
             .Where(b => b.Id == bookingId)
-            .Select(b => ProjectToDto(b))
+            .Select(ToDto)
             .FirstAsync();
 
         return dto;
     }
 
-    private static BookingResponseDto ProjectToDto(Booking b) => new()
+    /// <summary>
+    /// این پروژکشن عمداً به شکل Expression&lt;Func&lt;...&gt;&gt; (نه یک متد معمولی) تعریف شده.
+    /// اگر به‌جایش یک متد static معمولی صدا زده شود (مثلاً `.Select(b => SomeMethod(b))`)،
+    /// EF Core نمی‌تواند بدنه‌ی آن متد را در زمان اجرا به SQL ترجمه کند و با خطای
+    /// "The LINQ expression could not be translated" شکست می‌خورد. با تعریف آن به شکل
+    /// Expression و پاس دادن مستقیم به Select (بدون لامبدای اضافه دور آن)، EF Core آن را
+    /// به‌عنوان بخشی از همان Query تحلیل و به SQL تبدیل می‌کند.
+    /// </summary>
+    private static readonly Expression<Func<Booking, BookingResponseDto>> ToDto = b => new BookingResponseDto
     {
         Id = b.Id,
         StudentProfileId = b.StudentProfileId,
