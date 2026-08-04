@@ -170,11 +170,49 @@ GET /api/v1/teachers?city=تهران&musicCategoryIds=1&minPrice=200000&maxPrice
 Authorization: Bearer {accessToken}
 ```
 
+## رزرو کلاس و پرداخت (زرین‌پال)
+
+| Method | Route | نقش | توضیح |
+|---|---|---|---|
+| POST | `/api/v1/bookings` | Student | ثبت درخواست رزرو برای یک استاد |
+| POST | `/api/v1/bookings/{id}/approve` | Teacher | تایید درخواست (وضعیت → `AwaitingPayment`) |
+| POST | `/api/v1/bookings/{id}/reject` | Teacher | رد درخواست |
+| POST | `/api/v1/bookings/{id}/cancel` | Student/Teacher | لغو رزروی که هنوز `Confirmed` نشده |
+| GET | `/api/v1/bookings/mine` | هر دو | لیست رزروهای کاربر جاری |
+| GET | `/api/v1/bookings/{id}` | طرفین رزرو | جزئیات یک رزرو |
+| POST | `/api/v1/payments/zarinpal/request` | Student | ایجاد تراکنش در زرین‌پال برای رزروی که `AwaitingPayment` است؛ خروجی شامل `paymentUrl` برای Redirect است |
+| GET | `/api/v1/payments/zarinpal/callback` | - (عمومی) | آدرس بازگشت از درگاه؛ خودش verify را انجام می‌دهد و رزرو را `Confirmed` می‌کند |
+
+جریان کامل:
+
+```
+Student → POST /bookings                      (PendingTeacherApproval)
+Teacher → POST /bookings/{id}/approve          (AwaitingPayment)
+Student → POST /payments/zarinpal/request      → paymentUrl
+Student → مرورگر را به paymentUrl هدایت کن     (کاربر در سایت زرین‌پال پرداخت می‌کند)
+ZarinPal → GET /payments/zarinpal/callback     (verify خودکار → Confirmed)
+```
+
+### راه‌اندازی زرین‌پال
+
+۱. از [پنل زرین‌پال](https://next.zarinpal.com) یک مرچنت‌کد بگیرید (برای تست، حالت Sandbox نیازی به مرچنت واقعی ندارد؛ هر GUID دلخواه کار می‌کند).
+
+۲. مقدار را در `appsettings.json` یا (برای Docker) در فایل `.env` کنار `docker-compose.yml` قرار دهید:
+
+```
+ZARINPAL_MERCHANT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+```
+
+۳. `ZarinPal:CallbackUrl` باید آدرسی باشد که از بیرون (از سمت کاربر/زرین‌پال) قابل دسترسی است — برای تست لوکال با Docker همان `http://localhost:8080/...` کار می‌کند، اما برای Production باید دامنه‌ی واقعی سرور باشد.
+
+۴. `ZarinPal:Sandbox: true` تراکنش‌ها را روی `sandbox.zarinpal.com` می‌فرستد (پول واقعی جابه‌جا نمی‌شود). پیش از رفتن به Production این مقدار را `false` کنید.
+
+> **نکته:** فعلاً Endpoint کال‌بک یک صفحه HTML ساده برمی‌گرداند. وقتی فرانت‌اند آماده شد، داخل `PaymentsController.Callback` به‌جای آن صفحه، باید کاربر با `Redirect` به صفحه‌ی نتیجه در فرانت‌اند هدایت شود (کامنت مربوطه در همان متد گذاشته شده).
+
 ## نقشه راه فازهای بعدی
 
 1. ~~مدیریت لیست اساتید (فیلتر بر اساس شهر/محله/حوزه/شهریه/امتیاز) — جستجو و صفحه‌بندی~~ ✅ انجام شد
-2. سیستم پیشنهاد کلاس از هنرآموز به استاد + پذیرش/رد توسط استاد
-3. رزرو کلاس و مدیریت تقویم زمانی استاد
-4. درگاه پرداخت داخل اپلیکیشن
-5. فروشگاه آلات موسیقی و لوازم جانبی (کاتالوگ، سبد خرید، سفارش)
-6. سیستم امتیازدهی و نظرات هنرآموزان به استاد
+2. ~~رزرو کلاس + پرداخت داخل اپلیکیشن (زرین‌پال)~~ ✅ انجام شد
+3. فروشگاه آلات موسیقی و لوازم جانبی (کاتالوگ، سبد خرید، سفارش)
+4. سیستم امتیازدهی و نظرات هنرآموزان به استاد
+5. مدیریت تقویم/بازه‌های زمانی در دسترس هر استاد (جلوگیری از رزرو دو جلسه هم‌زمان)

@@ -15,6 +15,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
     public DbSet<StudentProfile> StudentProfiles => Set<StudentProfile>();
     public DbSet<MusicCategory> MusicCategories => Set<MusicCategory>();
     public DbSet<TeacherMusicCategory> TeacherMusicCategories => Set<TeacherMusicCategory>();
+    public DbSet<Booking> Bookings => Set<Booking>();
+    public DbSet<Payment> Payments => Set<Payment>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -74,6 +76,51 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityR
                 .WithMany(c => c.TeacherCategories)
                 .HasForeignKey(tc => tc.MusicCategoryId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Booking
+        builder.Entity<Booking>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.PriceAmount).HasColumnType("numeric(12,2)");
+            b.Property(x => x.Status).HasConversion<string>().HasMaxLength(30);
+
+            b.HasOne(x => x.StudentProfile)
+                .WithMany()
+                .HasForeignKey(x => x.StudentProfileId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.TeacherProfile)
+                .WithMany()
+                .HasForeignKey(x => x.TeacherProfileId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            b.HasOne(x => x.MusicCategory)
+                .WithMany()
+                .HasForeignKey(x => x.MusicCategoryId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            b.HasIndex(x => x.StudentProfileId);
+            b.HasIndex(x => x.TeacherProfileId);
+            b.HasIndex(x => x.Status);
+        });
+
+        // Payment
+        builder.Entity<Payment>(b =>
+        {
+            b.HasKey(x => x.Id);
+            b.Property(x => x.Amount).HasColumnType("numeric(12,2)");
+            b.Property(x => x.Status).HasConversion<string>().HasMaxLength(20);
+            b.Property(x => x.Authority).HasMaxLength(64);
+            b.Property(x => x.RefId).HasMaxLength(64);
+
+            b.HasOne(x => x.Booking)
+                .WithMany(x => x.Payments)
+                .HasForeignKey(x => x.BookingId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Authority شناسه‌ای است که Callback زرین‌پال با آن Payment مربوطه را پیدا می‌کند
+            b.HasIndex(x => x.Authority).IsUnique();
         });
 
         // Seed اولیه چند حوزه رایج (اختیاری - قابل مدیریت بعداً توسط ادمین)

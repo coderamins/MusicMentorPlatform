@@ -32,6 +32,7 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
 
         services.Configure<JwtSettings>(configuration.GetSection("Jwt"));
+        services.Configure<ZarinPalSettings>(configuration.GetSection("ZarinPal"));
 
         var jwtSection = configuration.GetSection("Jwt").Get<JwtSettings>()
                           ?? throw new InvalidOperationException("بخش Jwt در appsettings.json تنظیم نشده است.");
@@ -59,6 +60,13 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITeacherDirectoryService, TeacherDirectoryService>();
+        services.AddScoped<IBookingService, BookingService>();
+        services.AddScoped<IPaymentService, PaymentService>();
+
+        services.AddHttpClient<IZarinPalGateway, ZarinPalGateway>(client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
 
         return services;
     }

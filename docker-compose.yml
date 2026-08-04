@@ -41,6 +41,9 @@ services:
       Jwt__Audience: MusicMentor.Client
       Jwt__SecretKey: ${JWT_KEY}
       Jwt__AccessTokenMinutes: 60
+      ZarinPal__MerchantId: "${ZARINPAL_MERCHANT_ID:-REPLACE_WITH_YOUR_ZARINPAL_MERCHANT_ID}"
+      ZarinPal__CallbackUrl: "http://localhost:8082/api/v1/payments/zarinpal/callback"
+      ZarinPal__Sandbox: "true"
 
     ports:
       - "8082:8080"
