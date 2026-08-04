@@ -60,6 +60,7 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, TokenService>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITeacherDirectoryService, TeacherDirectoryService>();
+        services.AddScoped<IStudentDirectoryService, StudentDirectoryService>();
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IPaymentService, PaymentService>();
 
