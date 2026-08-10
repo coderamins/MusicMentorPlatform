@@ -24,7 +24,7 @@ public class TeacherOnboardingController : ControllerBase
     /// </summary>
     [HttpPost("resume")]
     [RequestSizeLimit(6_000_000)] // کمی بیشتر از حد مجاز ۵MB برای overhead خود multipart
-    public async Task<IActionResult> UploadResume([FromForm] IFormFile resume)
+    public async Task<IActionResult> UploadResume(IFormFile resume)
     {
         if (resume is null || resume.Length == 0)
             return BadRequest(new { errors = new[] { "فایل رزومه ارسال نشده است." } });
