@@ -216,3 +216,8 @@ ZARINPAL_MERCHANT_ID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 3. فروشگاه آلات موسیقی و لوازم جانبی (کاتالوگ، سبد خرید، سفارش)
 4. سیستم امتیازدهی و نظرات هنرآموزان به استاد
 5. مدیریت تقویم/بازه‌های زمانی در دسترس هر استاد (جلوگیری از رزرو دو جلسه هم‌زمان)
+
+
+
+## مستندات API برای فرانت‌اند
+راهنمای کامل Workflow و لیست Endpointها: [docs/API_Workflow_Guide.md](./docs/API_Workflow_Guide.md)
