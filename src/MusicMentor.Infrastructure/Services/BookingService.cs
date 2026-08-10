@@ -63,7 +63,9 @@ public class BookingService : IBookingService
         return ServiceResult<BookingResponseDto>.Success(await MapToDtoAsync(booking.Id));
     }
 
-    public async Task<ServiceResult<BookingResponseDto>> ApproveAsync(Guid teacherUserId, Guid bookingId, BookingActionRequest request)
+    public async Task<ServiceResult<BookingResponseDto>> ApproveAsync(
+        Guid teacherUserId, Guid bookingId, 
+        BookingActionRequest request)
     {
         var booking = await _db.Bookings
             .Include(b => b.TeacherProfile)

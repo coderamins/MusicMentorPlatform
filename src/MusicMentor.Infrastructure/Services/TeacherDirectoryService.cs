@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MusicMentor.Application.DTOs.Common;
 using MusicMentor.Application.DTOs.Teachers;
 using MusicMentor.Application.Interfaces;
-using MusicMentor.Domain.Entities;
+using MusicMentor.Domain.Enums;
 using MusicMentor.Infrastructure.Data;
 
 namespace MusicMentor.Infrastructure.Services;
@@ -23,6 +23,9 @@ public class TeacherDirectoryService : ITeacherDirectoryService
             .Include(t => t.Categories)
                 .ThenInclude(tc => tc.MusicCategory)
             .Where(t => t.User.IsActive)
+            // اساتیدی که هنوز توسط ادمین Approve نشدن (PendingReview یا Rejected)
+            // اصلاً نباید در جستجوی عمومی دیده بشن - این فیلتر همیشه اجباریه، اختیاری نیست.
+            .Where(t => t.ApprovalStatus == TeacherApprovalStatus.Approved)
             .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(filter.City))
@@ -39,9 +42,6 @@ public class TeacherDirectoryService : ITeacherDirectoryService
 
         if (filter.MinExperienceYears.HasValue)
             query = query.Where(t => t.YearsOfExperience >= filter.MinExperienceYears.Value);
-
-        if (filter.OnlyVerified == true)
-            query = query.Where(t => t.IsVerified);
 
         if (filter.MusicCategoryIds is { Count: > 0 })
             query = query.Where(t => t.Categories.Any(c => filter.MusicCategoryIds.Contains(c.MusicCategoryId)));
@@ -84,7 +84,10 @@ public class TeacherDirectoryService : ITeacherDirectoryService
                 HourlyRate = t.HourlyRate,
                 RatingAverage = t.RatingAverage,
                 RatingCount = t.RatingCount,
-                IsVerified = t.IsVerified,
+                // چون کوئری بالا از قبل فقط ApprovalStatus == Approved رو نگه می‌داره،
+                // این مقدار همیشه true خواهد بود؛ شکل DTO/خروجی JSON رو عمداً عوض نکردم
+                // تا سمت فرانت مجبور به تغییر نشه.
+                IsVerified = t.ApprovalStatus == TeacherApprovalStatus.Approved,
                 BioShort = t.Bio != null && t.Bio.Length > 160 ? t.Bio.Substring(0, 160) + "…" : t.Bio,
                 Categories = t.Categories.Select(c => c.MusicCategory.Name).ToList(),
             })
@@ -105,7 +108,12 @@ public class TeacherDirectoryService : ITeacherDirectoryService
             .Include(t => t.User)
             .Include(t => t.Categories)
                 .ThenInclude(tc => tc.MusicCategory)
-            .FirstOrDefaultAsync(t => t.Id == teacherProfileId && t.User.IsActive);
+            .FirstOrDefaultAsync(t =>
+                t.Id == teacherProfileId &&
+                t.User.IsActive &&
+                // همون منطق SearchTeachersAsync: تا وقتی ادمین Approve نکرده،
+                // پروفایل عمومی استاد هم نباید با لینک مستقیم قابل مشاهده باشه.
+                t.ApprovalStatus == TeacherApprovalStatus.Approved);
 
         if (teacher is null)
             return null;
@@ -121,7 +129,9 @@ public class TeacherDirectoryService : ITeacherDirectoryService
             HourlyRate = teacher.HourlyRate,
             RatingAverage = teacher.RatingAverage,
             RatingCount = teacher.RatingCount,
-            IsVerified = teacher.IsVerified,
+            // چون کوئری بالا از قبل فیلتر Approved داره، این همیشه true خواهد بود؛
+            // شکل DTO رو عمداً عوض نکردم تا فرانت مجبور به تغییر نشه.
+            IsVerified = teacher.ApprovalStatus == TeacherApprovalStatus.Approved,
             BioShort = Truncate(teacher.Bio, 160),
             Bio = teacher.Bio,
             PhoneNumber = teacher.User.PhoneNumber,

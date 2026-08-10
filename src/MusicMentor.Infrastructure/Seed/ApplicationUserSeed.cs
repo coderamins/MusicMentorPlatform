@@ -143,7 +143,7 @@ public static class ApplicationUserSeed
             Bio = bio,
             YearsOfExperience = yearsOfExperience,
             HourlyRate = hourlyRate,
-            IsVerified = isVerified,
+            ApprovalStatus = isVerified ? TeacherApprovalStatus.Approved : TeacherApprovalStatus.PendingReview,
             RatingAverage = ratingAverage,
             RatingCount = ratingCount,
         };
