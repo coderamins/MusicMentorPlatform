@@ -10,12 +10,10 @@ public interface IAdminTeacherService
     /// <summary>لیست اساتید بر اساس وضعیت بررسی؛ status=null یعنی همه وضعیت‌ها</summary>
     Task<PagedResult<AdminTeacherListItemDto>> SearchAsync(TeacherApprovalStatus? status, int page, int pageSize);
 
+    /// <summary>جزئیات کامل یک استاد برای بررسی (بیوگرافی، سابقه، حوزه‌های تدریس)</summary>
     Task<AdminTeacherDetailDto?> GetByIdAsync(Guid teacherProfileId);
 
     Task<ServiceResult<AdminTeacherDetailDto>> ApproveAsync(Guid teacherProfileId);
 
     Task<ServiceResult<AdminTeacherDetailDto>> RejectAsync(Guid teacherProfileId, string reason);
-
-    /// <summary>محتوای فایل رزومه برای دانلود توسط ادمین؛ اگر رزومه‌ای آپلود نشده باشد null برمی‌گرداند</summary>
-    Task<(Stream Content, string ContentType, string FileName)?> GetResumeFileAsync(Guid teacherProfileId);
 }

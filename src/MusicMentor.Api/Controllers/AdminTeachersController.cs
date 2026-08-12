@@ -44,7 +44,7 @@ public class AdminTeachersController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>جزئیات کامل یک استاد برای بررسی (بیوگرافی، حوزه‌ها، اطلاعات رزومه)</summary>
+    /// <summary>جزئیات کامل یک استاد برای بررسی: بیوگرافی (سابقه کاری/تدریسی)، سابقه به سال، حوزه‌های تدریس</summary>
     [HttpGet("{teacherProfileId:guid}")]
     [ProducesResponseType(typeof(AdminTeacherDetailDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -55,18 +55,6 @@ public class AdminTeachersController : ControllerBase
             return NotFound(new { errors = new[] { "استاد پیدا نشد." } });
 
         return Ok(teacher);
-    }
-
-    /// <summary>دانلود فایل رزومه/مدارک برای بررسی</summary>
-    [HttpGet("{teacherProfileId:guid}/resume")]
-    public async Task<IActionResult> DownloadResume(Guid teacherProfileId)
-    {
-        var file = await _adminTeacherService.GetResumeFileAsync(teacherProfileId);
-        if (file is null)
-            return NotFound(new { errors = new[] { "رزومه‌ای برای این استاد ثبت نشده است." } });
-
-        var (content, contentType, fileName) = file.Value;
-        return File(content, contentType, fileName);
     }
 
     /// <summary>تایید استاد - از این پس در جستجوی عمومی نمایش داده می‌شود و می‌تواند رزرو بپذیرد</summary>

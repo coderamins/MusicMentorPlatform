@@ -14,17 +14,17 @@ public class AdminTeacherListItemDto
     /// <summary>PendingReview | Approved | Rejected</summary>
     public string ApprovalStatus { get; set; } = default!;
 
-    public bool HasResume { get; set; }
     public DateTime RegisteredAtUtc { get; set; }
 }
 
-/// <summary>جزئیات کامل برای صفحه بررسی ادمین (شامل بیوگرافی، حوزه‌های تدریس، اطلاعات رزومه)</summary>
+/// <summary>
+/// جزئیات کامل برای صفحه بررسی ادمین. فعلاً تصمیم تایید/رد صرفاً بر اساس
+/// بیوگرافی (سابقه کاری/تدریسی که خود استاد نوشته)، سابقه به سال، و حوزه‌های تدریس گرفته می‌شود.
+/// </summary>
 public class AdminTeacherDetailDto : AdminTeacherListItemDto
 {
     public string? Bio { get; set; }
     public List<string> Categories { get; set; } = new();
-    public string? ResumeFileName { get; set; }
-    public DateTime? ResumeUploadedAtUtc { get; set; }
     public string? RejectionReason { get; set; }
     public DateTime? ReviewedAtUtc { get; set; }
 }

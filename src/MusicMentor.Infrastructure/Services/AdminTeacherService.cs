@@ -13,12 +13,10 @@ namespace MusicMentor.Infrastructure.Services;
 public class AdminTeacherService : IAdminTeacherService
 {
     private readonly ApplicationDbContext _db;
-    private readonly IFileStorageService _fileStorage;
 
-    public AdminTeacherService(ApplicationDbContext db, IFileStorageService fileStorage)
+    public AdminTeacherService(ApplicationDbContext db)
     {
         _db = db;
-        _fileStorage = fileStorage;
     }
 
     public async Task<PagedResult<AdminTeacherListItemDto>> SearchAsync(TeacherApprovalStatus? status, int page, int pageSize)
@@ -95,24 +93,8 @@ public class AdminTeacherService : IAdminTeacherService
         return ServiceResult<AdminTeacherDetailDto>.Success((await GetByIdAsync(teacherProfileId))!);
     }
 
-    public async Task<(Stream Content, string ContentType, string FileName)?> GetResumeFileAsync(Guid teacherProfileId)
-    {
-        var teacher = await _db.TeacherProfiles
-            .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Id == teacherProfileId);
-
-        if (teacher?.ResumeStoragePath is null)
-            return null;
-
-        var stream = await _fileStorage.OpenReadAsync(teacher.ResumeStoragePath);
-        if (stream is null)
-            return null;
-
-        return (stream, teacher.ResumeContentType ?? "application/octet-stream", teacher.ResumeFileName ?? "resume");
-    }
-
-    // طبق همان نکته‌ای که در BookingService رعایت شد: پروژکشن باید Expression باشد،
-    // نه یک متد معمولی که داخل Select صدا زده شود؛ وگرنه EF Core نمی‌تواند به SQL ترجمه‌اش کند.
+    // طبق همون نکته‌ی همیشگی: پروژکشن باید Expression باشه، نه یه متد معمولی که
+    // داخل Select صدا زده بشه؛ وگرنه EF Core نمی‌تونه به SQL ترجمه‌ش کنه.
     private static readonly Expression<Func<TeacherProfile, AdminTeacherListItemDto>> ToListItemDto = t => new AdminTeacherListItemDto
     {
         TeacherProfileId = t.Id,
@@ -124,7 +106,6 @@ public class AdminTeacherService : IAdminTeacherService
         YearsOfExperience = t.YearsOfExperience,
         HourlyRate = t.HourlyRate,
         ApprovalStatus = t.ApprovalStatus.ToString(),
-        HasResume = t.ResumeStoragePath != null,
         RegisteredAtUtc = t.User.CreatedAtUtc,
     };
 
@@ -139,12 +120,11 @@ public class AdminTeacherService : IAdminTeacherService
         YearsOfExperience = t.YearsOfExperience,
         HourlyRate = t.HourlyRate,
         ApprovalStatus = t.ApprovalStatus.ToString(),
-        HasResume = t.ResumeStoragePath != null,
         RegisteredAtUtc = t.User.CreatedAtUtc,
+        // این‌ها همون منبعی هستن که فعلاً ادمین باهاش تصمیم می‌گیره:
+        // توضیح سابقه‌ی کاری/تدریسی که خود استاد موقع ثبت‌نام نوشته + حوزه‌های تدریس
         Bio = t.Bio,
         Categories = t.Categories.Select(c => c.MusicCategory.Name).ToList(),
-        ResumeFileName = t.ResumeFileName,
-        ResumeUploadedAtUtc = t.ResumeUploadedAtUtc,
         RejectionReason = t.RejectionReason,
         ReviewedAtUtc = t.ReviewedAtUtc,
     };
