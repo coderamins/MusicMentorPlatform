@@ -22,6 +22,12 @@ public static class ApplicationUserSeed
             if (!await roleManager.RoleExistsAsync(role))
                 await roleManager.CreateAsync(new IdentityRole<Guid>(role));
         }
+        await SeedAdminAsync(userManager,
+            email: "ramins@gmail.com",
+            phone: "09930701955",
+            firstName: "رامین",
+            lastName: "صلحی"); //کاربر ادمین 
+
 
         await SeedTeacherAsync(userManager, db,
             email: "mohsenkia70@gmail.com",
@@ -203,4 +209,37 @@ public static class ApplicationUserSeed
             LearningGoal = learningGoal,
         });
     }
+
+
+    private static async Task SeedAdminAsync(
+    UserManager<ApplicationUser> userManager,
+    string email,
+    string phone,
+    string firstName,
+    string lastName)
+    {
+        var existing = await userManager.FindByEmailAsync(email);
+        if (existing is not null)
+            return; // قبلاً Seed شده
+
+        var user = new ApplicationUser
+        {
+            UserName = email,
+            Email = email,
+            PhoneNumber = phone,
+            FirstName = firstName,
+            LastName = lastName,
+            EmailConfirmed = true,
+            PhoneNumberConfirmed = true,
+        };
+
+        var createResult = await userManager.CreateAsync(user, SeedPassword);
+        if (!createResult.Succeeded)
+            throw new InvalidOperationException(
+                $"خطا در ساخت کاربر Seed «{email}»: " +
+                string.Join(", ", createResult.Errors.Select(e => e.Description)));
+
+        await userManager.AddToRoleAsync(user, UserRoles.Admin);
+    }
+
 }
