@@ -97,7 +97,10 @@ public class AuthService : IAuthService
             Bio = request.Bio,
             YearsOfExperience = request.YearsOfExperience,
             HourlyRate = request.HourlyRate,
+            Latitude = request.Latitude,     // <-- جدید
+            Longitude = request.Longitude,   // <-- جدید
         };
+
 
         if (request.MusicCategoryIds.Count > 0)
         {

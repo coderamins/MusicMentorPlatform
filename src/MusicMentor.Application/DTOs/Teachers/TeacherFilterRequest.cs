@@ -22,6 +22,15 @@ public class TeacherFilterRequest
     /// <summary>فقط اساتید تاییدشده توسط ادمین</summary>
     public bool? OnlyVerified { get; set; }
 
+    public double? Latitude { get; set; }
+
+    /// <summary>طول جغرافیایی هنرآموز</summary>
+    public double? Longitude { get; set; }
+
+    /// <summary>حداکثر شعاع جستجو به کیلومتر (فقط وقتی Latitude/Longitude داده شده اعمال می‌شه)</summary>
+    public double? RadiusKm { get; set; }
+
+
     public TeacherSortOption SortBy { get; set; } = TeacherSortOption.MostPopular;
 
     private const int MaxPageSize = 50;

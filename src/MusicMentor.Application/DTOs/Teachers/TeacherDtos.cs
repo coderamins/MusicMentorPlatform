@@ -14,6 +14,7 @@ public class TeacherListItemDto
     public int RatingCount { get; set; }
     public bool IsVerified { get; set; }
     public string? BioShort { get; set; }
+    public double? DistanceKm { get; set; }
     public List<string> Categories { get; set; } = new();
 }
 

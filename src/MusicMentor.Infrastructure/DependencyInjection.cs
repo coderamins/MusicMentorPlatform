@@ -64,6 +64,7 @@ public static class DependencyInjection
         services.AddScoped<IBookingService, BookingService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IAdminTeacherService, AdminTeacherService>();
+        services.AddScoped<ITeacherLocationService, TeacherLocationService>();
 
         services.AddHttpClient<IZarinPalGateway, ZarinPalGateway>(client =>
         {

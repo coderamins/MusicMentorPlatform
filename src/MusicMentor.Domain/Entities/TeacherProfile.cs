@@ -50,6 +50,9 @@ public class TeacherProfile
     public double RatingAverage { get; set; } = 0;
 
     public int RatingCount { get; set; } = 0;
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
+
 
     public ICollection<TeacherMusicCategory> Categories { get; set; } = new List<TeacherMusicCategory>();
 }

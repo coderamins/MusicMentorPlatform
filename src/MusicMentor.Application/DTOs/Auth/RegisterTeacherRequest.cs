@@ -14,6 +14,8 @@ public class RegisterTeacherRequest
     public string? Bio { get; set; }
     public int YearsOfExperience { get; set; }
     public decimal HourlyRate { get; set; }
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 
     /// <summary>شناسه حوزه‌های تدریس (سازها/سبک‌ها) - از جدول MusicCategory</summary>
     public List<int> MusicCategoryIds { get; set; } = new();

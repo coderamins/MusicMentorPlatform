@@ -16,4 +16,6 @@ public enum TeacherSortOption
 
     /// <summary>جدیدترین اساتید ثبت‌نام‌شده</summary>
     Newest = 4,
+
+    NearestFirst,
 }
