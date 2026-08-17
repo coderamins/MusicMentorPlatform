@@ -30,7 +30,6 @@ public class TeacherFilterRequest
     /// <summary>حداکثر شعاع جستجو به کیلومتر (فقط وقتی Latitude/Longitude داده شده اعمال می‌شه)</summary>
     public double? RadiusKm { get; set; }
 
-
     public TeacherSortOption SortBy { get; set; } = TeacherSortOption.MostPopular;
 
     private const int MaxPageSize = 50;
