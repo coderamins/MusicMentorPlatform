@@ -16,6 +16,8 @@ public class TeacherListItemDto
     public string? BioShort { get; set; }
     public double? DistanceKm { get; set; }
     public List<string> Categories { get; set; } = new();
+    public double? Latitude { get; set; }
+    public double? Longitude { get; set; }
 }
 
 /// <summary>اطلاعات کامل استاد برای صفحه پروفایل</summary>

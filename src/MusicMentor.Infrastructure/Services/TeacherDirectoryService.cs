@@ -124,6 +124,8 @@ public class TeacherDirectoryService : ITeacherDirectoryService
                 HourlyRate = x.Teacher.HourlyRate,
                 RatingAverage = x.Teacher.RatingAverage,
                 RatingCount = x.Teacher.RatingCount,
+                Latitude=x.Teacher.Latitude,
+                Longitude=x.Teacher.Longitude,
                 IsVerified = x.Teacher.ApprovalStatus == TeacherApprovalStatus.Approved,
                 BioShort = x.Teacher.Bio != null && x.Teacher.Bio.Length > 160
                     ? x.Teacher.Bio.Substring(0, 160) + "…"
